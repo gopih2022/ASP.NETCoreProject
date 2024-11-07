@@ -1,0 +1,906 @@
+How to check ground level water
+To check ground level water, you can use various methods depending on your resources and location:
+
+Traditional Methods:
+
+1. Dig a shallow well or borehole (10-20 feet deep) and observe the water level.
+2. Use a water divining rod (a Y-shaped branch or metal rod) to locate underground water.
+3. Check for signs of water seepage, such as wet spots, green vegetation, or animal tracks.
+
+Scientific Methods:
+
+1. Electrical Resistivity Tomography (ERT): Measures electrical resistance to identify subsurface water.
+2. Ground-Penetrating Radar (GPR): Uses radar pulses to detect underground water.
+3. Seismic Survey: Analyzes seismic waves to determine subsurface water presence.
+
+DIY Methods:
+
+1. Drill a small test well (10-20 feet deep) using a hand auger or drill rig.
+2. Use a water detection probe (available at hardware stores).
+3. Measure the depth to water table using a piezometer (a simple, handmade device).
+
+Professional Services:
+
+1. Hire a hydrologist or well driller for expert assessment.
+2. Use advanced technologies like electrical conductivity imaging or magnetic resonance sounding.
+
+Precautions:
+
+1. Ensure safety while digging or drilling.
+2. Avoid contaminating groundwater sources.
+3. Consult local regulations and experts before conducting extensive testing.
+
+Online Resources:
+
+1. United States Geological Survey (USGS) Water Resources Division
+2. National Ground Water Association (NGWA)
+3. Local government websites (e.g., county or municipal water departments)
+
+Remember to consult experts and follow local regulations for accurate and safe groundwater assessment.
+
+Would you like more information on a specific method?
+create web application using asp.net mvc core  to get remote windows server info
+Here's a step-by-step guide to creating a web application using (link unavailable) MVC Core to retrieve remote Windows server information:
+
+Prerequisites:
+
+1. .NET Core 3.1 or later
+2. Visual Studio 2019 or later (or Visual Studio Code)
+3. Windows Server remote access credentials (username, password, server name/IP)
+
+Create a new (link unavailable) MVC Core project:
+
+1. Open Visual Studio and select "Create a new project."
+2. Choose "(link unavailable) Core Web Application" and click "Next."
+3. Select ".NET Core" and "(link unavailable) Core 3.1" (or later).
+4. Choose "MVC" as the project template.
+5. Name your project (e.g., "ServerInfo").
+
+Add required NuGet packages:
+
+1. Open the terminal or Package Manager Console.
+2. Install the following packages:
+
+Install-Package System.Management
+Install-Package System.Management.Automation
+
+Create a model for server information:
+
+1. Create a new folder named "Models" in your project.
+2. Add a new class file named "ServerInfo.cs":
+
+namespace ServerInfo.Models
+{
+    public class ServerInfo
+    {
+        public string ServerName { get; set; }
+        public string OperatingSystem { get; set; }
+        public string ServicePack { get; set; }
+        public string ProcessorArchitecture { get; set; }
+        public int ProcessorCount { get; set; }
+        public long Memory { get; set; }
+        // Add more properties as needed
+    }
+}
+
+Create a controller for remote server information:
+
+1. Create a new folder named "Controllers" in your project.
+2. Add a new class file named "ServerInfoController.cs":
+
+using Microsoft.AspNetCore.Mvc;
+using System.Management;
+using ServerInfo.Models;
+
+namespace ServerInfo.Controllers
+{
+    public class ServerInfoController : Controller
+    {
+        [HttpGet]
+        public IActionResult GetServerInfo(string serverName, string username, string password)
+        {
+            // Create a new ManagementScope object
+            var scope = new ManagementScope($"\\{serverName}\ROOT\CIMV2");
+
+            // Set credentials
+            scope.Options.Username = username;
+            scope.Options.Password = password;
+
+            // Connect to the remote server
+            scope.Connect();
+
+            // Create a new ManagementObjectSearcher object
+            var searcher = new ManagementObjectSearcher(scope, new ObjectQuery("SELECT * FROM Win32_OperatingSystem"));
+
+            // Get the server information
+            var serverInfo = searcher.Get().Cast<ManagementObject>().FirstOrDefault();
+
+            // Map the server information to the model
+            var model = new ServerInfo
+            {
+                ServerName = serverName,
+                OperatingSystem = serverInfo["Caption"].ToString(),
+                ServicePack = serverInfo["CSDVersion"].ToString(),
+                ProcessorArchitecture = serverInfo["OSArchitecture"].ToString(),
+                ProcessorCount = int.Parse(serverInfo["NumberOfProcessors"].ToString()),
+                Memory = long.Parse(serverInfo["TotalVisibleMemorySize"].ToString())
+            };
+
+            return View(model);
+        }
+    }
+}
+
+Create a view for server information:
+
+1. Create a new folder named "Views" in your project.
+2. Add a new folder named "ServerInfo" inside "Views".
+3. Add a new file named "GetServerInfo.cshtml":
+
+@model ServerInfo.Models.ServerInfo
+
+<h2>Server Information</h2>
+
+<table>
+    <tr>
+        <th>Server Name</th>
+        <td>@Model.ServerName</td>
+    </tr>
+    <tr>
+        <th>Operating System</th>
+        <td>@Model.OperatingSystem</td>
+    </tr>
+    <tr>
+        <th>Service Pack</th>
+        <td>@Model.ServicePack</td>
+    </tr>
+    <tr>
+        <th>Processor Architecture</th>
+        <td>@Model.ProcessorArchitecture</td>
+    </tr>
+    <tr>
+        <th>Processor Count</th>
+        <td>@Model.ProcessorCount</td>
+    </tr>
+    <tr>
+        <th>Memory</th>
+        <td>@Model.Memory</td>
+    </tr>
+</table>
+
+Run the application:
+
+1. Press F5 or click "Run" in Visual Studio.
+2. Enter the remote server name, username, and password in the URL:
+
+https://localhost:5001/ServerInfo/GetServerInfo?serverName=<server_name>&username=<username>&password=<password>
+
+Replace <server_name>, <username>, and <password> with your actual remote server credentials.
+
+This is a basic example to get you started. You can enhance the application by adding error handling, security measures, and more features as needed.
+
+Would you like me to elaborate on any part of this example?
+create web application using asp.net mvc core  to get remote windows server info add powershell script to get server details
+Here's an updated example of creating a web application using (link unavailable) MVC Core to retrieve remote Windows server information, including adding a PowerShell script to get server details:
+
+Prerequisites:
+
+1. .NET Core 3.1 or later
+2. Visual Studio 2019 or later (or Visual Studio Code)
+3. Windows Server remote access credentials (username, password, server name/IP)
+4. PowerShell 7 or later (installed on the remote server)
+
+Create a new (link unavailable) MVC Core project:
+
+1. Open Visual Studio and select "Create a new project."
+2. Choose "(link unavailable) Core Web Application" and click "Next."
+3. Select ".NET Core" and "(link unavailable) Core 3.1" (or later).
+4. Choose "MVC" as the project template.
+5. Name your project (e.g., "ServerInfo").
+
+Add required NuGet packages:
+
+1. Open the terminal or Package Manager Console.
+2. Install the following packages:
+
+Install-Package System.Management
+Install-Package System.Management.Automation
+
+Create a PowerShell script to get server details:
+
+1. Create a new file named "GetServerDetails.ps1" in your project root:
+
+# Get server details
+$serverInfo = New-Object -TypeName PSObject
+$serverInfo | Add-Member -MemberType NoteProperty -Name ServerName -Value $env:COMPUTERNAME
+$serverInfo | Add-Member -MemberType NoteProperty -Name OperatingSystem -Value (Get-WmiObject -Class Win32_OperatingSystem).Caption
+$serverInfo | Add-Member -MemberType NoteProperty -Name ServicePack -Value (Get-WmiObject -Class Win32_OperatingSystem).CSDVersion
+$serverInfo | Add-Member -MemberType NoteProperty -Name ProcessorArchitecture -Value (Get-WmiObject -Class Win32_Processor).Architecture
+$serverInfo | Add-Member -MemberType NoteProperty -Name ProcessorCount -Value (Get-WmiObject -Class Win32_Processor).NumberOfCores
+$serverInfo | Add-Member -MemberType NoteProperty -Name Memory -Value (Get-WmiObject -Class Win32_PhysicalMemory).Capacity
+
+# Output server details as JSON
+$serverInfo | ConvertTo-Json
+
+Create a controller to run the PowerShell script:
+
+1. Create a new folder named "Controllers" in your project.
+2. Add a new class file named "ServerInfoController.cs":
+
+using Microsoft.AspNetCore.Mvc;
+using System.Management.Automation;
+using System.Text;
+
+namespace ServerInfo.Controllers
+{
+    public class ServerInfoController : Controller
+    {
+        [HttpGet]
+        public IActionResult GetServerInfo(string serverName, string username, string password)
+        {
+            // Create a new PowerShell runspace
+            var runspace = RunspaceFactory.CreateRunspace();
+
+            // Set credentials
+            runspace.Open(username, password, serverName);
+
+            // Create a new PowerShell command
+            var command = new Command("GetServerDetails.ps1");
+
+            // Execute the command
+            var result = runspace.ExecuteCommand(command);
+
+            // Get the output as JSON
+            var output = result.ToString();
+
+            // Deserialize the JSON output
+            var serverInfo = JsonConvert.DeserializeObject<ServerInfo>(output);
+
+            return View(serverInfo);
+        }
+    }
+
+    public class ServerInfo
+    {
+        public string ServerName { get; set; }
+        public string OperatingSystem { get; set; }
+        public string ServicePack { get; set; }
+        public string ProcessorArchitecture { get; set; }
+        public int ProcessorCount { get; set; }
+        public long Memory { get; set; }
+    }
+}
+
+Create a view to display server information:
+
+1. Create a new folder named "Views" in your project.
+2. Add a new folder named "ServerInfo" inside "Views".
+3. Add a new file named "GetServerInfo.cshtml":
+
+@model ServerInfo
+
+<h2>Server Information</h2>
+
+<table>
+    <tr>
+        <th>Server Name</th>
+        <td>@Model.ServerName</td>
+    </tr>
+    <tr>
+        <th>Operating System</th>
+        <td>@Model.OperatingSystem</td>
+    </tr>
+    <tr>
+        <th>Service Pack</th>
+        <td>@Model.ServicePack</td>
+    </tr>
+    <tr>
+        <th>Processor Architecture</th>
+        <td>@Model.ProcessorArchitecture</td>
+    </tr>
+    <tr>
+        <th>Processor Count</th>
+        <td>@Model.ProcessorCount</td>
+    </tr>
+    <tr>
+        <th>Memory</th>
+        <td>@Model.Memory</td>
+    </tr>
+</table>
+
+Run the application:
+
+1
+create web application using asp.net mvc core  to get remote windows server info add powershell script to get server details and store details in database
+Here's an updated example of creating a web application using (link unavailable) MVC Core to retrieve remote Windows server information, including adding a PowerShell script to get server details and storing the details in a database:
+
+Prerequisites:
+
+1. .NET Core 3.1 or later
+2. Visual Studio 2019 or later (or Visual Studio Code)
+3. Windows Server remote access credentials (username, password, server name/IP)
+4. PowerShell 7 or later (installed on the remote server)
+5. SQL Server (or other relational database management system)
+
+Database Design:
+
+Create a database table to store server information:
+
+CREATE TABLE ServerInfo (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    ServerName NVARCHAR(50),
+    OperatingSystem NVARCHAR(100),
+    ServicePack NVARCHAR(50),
+    ProcessorArchitecture NVARCHAR(50),
+    ProcessorCount INT,
+    Memory BIGINT,
+    LastUpdated DATETIME
+)
+
+(link unavailable) MVC Core Project:
+
+1. Create a new (link unavailable) MVC Core project.
+2. Install required NuGet packages:
+
+Install-Package Microsoft.AspNetCore.Mvc
+Install-Package Microsoft.EntityFrameworkCore.SqlServer
+Install-Package System.Management.Automation
+
+PowerShell Script:
+
+Create a PowerShell script to get server details:
+
+# Get server details
+$serverInfo = New-Object -TypeName PSObject
+$serverInfo | Add-Member -MemberType NoteProperty -Name ServerName -Value $env:COMPUTERNAME
+$serverInfo | Add-Member -MemberType NoteProperty -Name OperatingSystem -Value (Get-WmiObject -Class Win32_OperatingSystem).Caption
+$serverInfo | Add-Member -MemberType NoteProperty -Name ServicePack -Value (Get-WmiObject -Class Win32_OperatingSystem).CSDVersion
+$serverInfo | Add-Member -MemberType NoteProperty -Name ProcessorArchitecture -Value (Get-WmiObject -Class Win32_Processor).Architecture
+$serverInfo | Add-Member -MemberType NoteProperty -Name ProcessorCount -Value (Get-WmiObject -Class Win32_Processor).NumberOfCores
+$serverInfo | Add-Member -MemberType NoteProperty -Name Memory -Value (Get-WmiObject -Class Win32_PhysicalMemory).Capacity
+
+# Output server details as JSON
+$serverInfo | ConvertTo-Json
+
+(link unavailable) MVC Core Controller:
+
+Create a controller to run the PowerShell script and store server details in the database:
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Management.Automation;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ServerInfo.Controllers
+{
+    public class ServerInfoController : Controller
+    {
+        private readonly ServerInfoContext _context;
+
+        public ServerInfoController(ServerInfoContext context)
+        {
+            _context = context;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetServerInfo(string serverName, string username, string password)
+        {
+            // Create a new PowerShell runspace
+            var runspace = RunspaceFactory.CreateRunspace();
+
+            // Set credentials
+            runspace.Open(username, password, serverName);
+
+            // Create a new PowerShell command
+            var command = new Command("GetServerDetails.ps1");
+
+            // Execute the command
+            var result = runspace.ExecuteCommand(command);
+
+            // Get the output as JSON
+            var output = result.ToString();
+
+            // Deserialize the JSON output
+            var serverInfo = JsonConvert.DeserializeObject<ServerInfo>(output);
+
+            // Store server details in database
+            _context.ServerInfo.Add(serverInfo);
+            await _context.SaveChangesAsync();
+
+            return View(serverInfo);
+        }
+    }
+
+    public class ServerInfo
+    {
+        public int Id { get; set; }
+        public string ServerName { get; set; }
+        public string OperatingSystem { get; set; }
+        public string ServicePack { get; set; }
+        public string ProcessorArchitecture { get; set; }
+        public int ProcessorCount { get; set; }
+        public long Memory { get; set; }
+        public DateTime LastUpdated { get; set; }
+    }
+}
+
+Database Context:
+
+Create a database context to interact with the database:
+
+using Microsoft.EntityFrameworkCore;
+
+public class ServerInfoContext : DbContext
+{
+    public ServerInfoContext(DbContextOptions<ServerInfoContext> options) : base(options)
+    {
+    }
+
+    public DbSet<ServerInfo> ServerInfo { get; set; }
+}
+
+Startup.cs:
+
+Configure the database connection and services in Startup.cs:
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace ServerInfo
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.Add
+
+create mvvm web application using asp.net mvc core  to get remote windows server info add powershell script to get server details and store details in database and get server name from frontend
+Here's an example of creating an MVVM web application using (link unavailable) MVC Core to retrieve remote Windows server information, including adding a PowerShell script to get server details, storing details in a database, and getting the server name from the frontend:
+
+Project Structure:
+
+- ServerInfo ((link unavailable) MVC Core project)
+    - Models
+        - ServerInfo.cs
+    - ViewModels
+        - ServerInfoViewModel.cs
+    - Controllers
+        - ServerInfoController.cs
+    - Views
+        - ServerInfo
+            - Index.cshtml
+    - Data
+        - ServerInfoContext.cs
+        - ServerInfoRepository.cs
+    - Scripts
+        - GetServerDetails.ps1
+
+Models:
+
+
+// ServerInfo.cs
+public class ServerInfo
+{
+    public int Id { get; set; }
+    public string ServerName { get; set; }
+    public string OperatingSystem { get; set; }
+    public string ServicePack { get; set; }
+    public string ProcessorArchitecture { get; set; }
+    public int ProcessorCount { get; set; }
+    public long Memory { get; set; }
+    public DateTime LastUpdated { get; set; }
+}
+
+
+ViewModels:
+
+
+// ServerInfoViewModel.cs
+public class ServerInfoViewModel
+{
+    public string ServerName { get; set; }
+    public ServerInfo ServerInfo { get; set; }
+}
+
+
+Controllers:
+
+
+// ServerInfoController.cs
+[ApiController]
+[Route("api/[controller]")]
+public class ServerInfoController : ControllerBase
+{
+    private readonly IServerInfoRepository _repository;
+
+    public ServerInfoController(IServerInfoRepository repository)
+    {
+        _repository = repository;
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<ServerInfo>> GetServerInfo(ServerInfoViewModel viewModel)
+    {
+        // Run PowerShell script to get server details
+        var powershell = PowerShell.Create();
+        powershell.AddScript(File.ReadAllText("GetServerDetails.ps1"));
+        powershell.AddParameter("ServerName", viewModel.ServerName);
+        var result = powershell.Invoke();
+
+        // Deserialize JSON output
+        var serverInfo = JsonConvert.DeserializeObject<ServerInfo>(result.ToString());
+
+        // Store server details in database
+        await _repository.AddServerInfo(serverInfo);
+
+        return Ok(serverInfo);
+    }
+}
+
+
+Views:
+
+
+<!-- Index.cshtml -->
+@model ServerInfoViewModel
+
+<h2>Server Information</h2>
+
+<form asp-action="GetServerInfo" asp-controller="ServerInfo" method="post">
+    <label asp-for="ServerName">Server Name:</label>
+    <input asp-for="ServerName" />
+    <button type="submit">Get Server Info</button>
+</form>
+
+<div>
+    <h3>Server Details:</h3>
+    <p>Operating System: @Model.ServerInfo.OperatingSystem</p>
+    <p>Service Pack: @Model.ServerInfo.ServicePack</p>
+    <p>Processor Architecture: @Model.ServerInfo.ProcessorArchitecture</p>
+    <p>Processor Count: @Model.ServerInfo.ProcessorCount</p>
+    <p>Memory: @Model.ServerInfo.Memory</p>
+</div>
+
+
+Data:
+
+
+// ServerInfoContext.cs
+public class ServerInfoContext : DbContext
+{
+    public ServerInfoContext(DbContextOptions<ServerInfoContext> options) : base(options)
+    {
+    }
+
+    public DbSet<ServerInfo> ServerInfo { get; set; }
+}
+
+// ServerInfoRepository.cs
+public interface IServerInfoRepository
+{
+    Task AddServerInfo(ServerInfo serverInfo);
+}
+
+public class ServerInfoRepository : IServerInfoRepository
+{
+    private readonly ServerInfoContext _context;
+
+    public ServerInfoRepository(ServerInfoContext context)
+    {
+        _context = context;
+    }
+
+    public async Task AddServerInfo(ServerInfo serverInfo)
+    {
+        _context.ServerInfo.Add(serverInfo);
+        await _context.SaveChangesAsync();
+    }
+}
+
+
+Scripts:
+
+
+# GetServerDetails.ps1
+param ($ServerName)
+
+$serverInfo = New-Object -TypeName PSObject
+$serverInfo | Add-Member -MemberType NoteProperty -Name ServerName -Value $ServerName
+$serverInfo | Add-Member -MemberType NoteProperty -Name OperatingSystem -Value (Get-WmiObject -Class Win32_OperatingSystem -ComputerName $ServerName).Caption
+$serverInfo | Add-Member -MemberType NoteProperty -Name ServicePack -Value (Get-WmiObject -Class Win32_OperatingSystem -ComputerName $ServerName).CSDVersion
+$serverInfo | Add-Member -MemberType NoteProperty -Name ProcessorArchitecture -Value (Get-WmiObject -Class Win32_Processor -ComputerName $ServerName).Architecture
+$serverInfo | Add
+
+create mvvm web application using asp.net mvc core  to get remote windows server info add powershell script to get server details and store details in database and get server name from frontend and add active directory users authentication login page
+Here's an example of creating an MVVM web application using (link unavailable) MVC Core to retrieve remote Windows server information, including adding a PowerShell script to get server details, storing details in a database, getting the server name from the frontend, and adding Active Directory users authentication login page:
+
+Project Structure:
+
+- ServerInfo ((link unavailable) MVC Core project)
+    - Models
+        - ServerInfo.cs
+    - ViewModels
+        - ServerInfoViewModel.cs
+    - Controllers
+        - ServerInfoController.cs
+        - AccountController.cs
+    - Views
+        - ServerInfo
+            - Index.cshtml
+        - Account
+            - Login.cshtml
+    - Data
+        - ServerInfoContext.cs
+        - ServerInfoRepository.cs
+    - Scripts
+        - GetServerDetails.ps1
+
+Models:
+
+
+// ServerInfo.cs
+public class ServerInfo
+{
+    public int Id { get; set; }
+    public string ServerName { get; set; }
+    public string OperatingSystem { get; set; }
+    public string ServicePack { get; set; }
+    public string ProcessorArchitecture { get; set; }
+    public int ProcessorCount { get; set; }
+    public long Memory { get; set; }
+    public DateTime LastUpdated { get; set; }
+}
+
+
+ViewModels:
+
+
+// ServerInfoViewModel.cs
+public class ServerInfoViewModel
+{
+    public string ServerName { get; set; }
+    public ServerInfo ServerInfo { get; set; }
+}
+
+
+Controllers:
+
+
+// ServerInfoController.cs
+[ApiController]
+[Route("api/[controller]")]
+public class ServerInfoController : ControllerBase
+{
+    private readonly IServerInfoRepository _repository;
+
+    public ServerInfoController(IServerInfoRepository repository)
+    {
+        _repository = repository;
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<ServerInfo>> GetServerInfo(ServerInfoViewModel viewModel)
+    {
+        // Run PowerShell script to get server details
+        var powershell = PowerShell.Create();
+        powershell.AddScript(File.ReadAllText("GetServerDetails.ps1"));
+        powershell.AddParameter("ServerName", viewModel.ServerName);
+        var result = powershell.Invoke();
+
+        // Deserialize JSON output
+        var serverInfo = JsonConvert.DeserializeObject<ServerInfo>(result.ToString());
+
+        // Store server details in database
+        await _repository.AddServerInfo(serverInfo);
+
+        return Ok(serverInfo);
+    }
+}
+
+// AccountController.cs
+[ApiController]
+[Route("api/[controller]")]
+public class AccountController : ControllerBase
+{
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly UserManager<IdentityUser> _userManager;
+    private readonly SignInManager<IdentityUser> _signInManager;
+
+    public AccountController(
+        IHttpContextAccessor httpContextAccessor,
+        UserManager<IdentityUser> userManager,
+        SignInManager<IdentityUser> signInManager)
+    {
+        _httpContextAccessor = httpContextAccessor;
+        _userManager = userManager;
+        _signInManager = signInManager;
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<string>> Login(LoginModel model)
+    {
+        var user = await _userManager.FindByNameAsync(model.Username);
+        if (user != null)
+        {
+            var signInResult = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+            if (signInResult.Succeeded)
+            {
+                return Ok("Logged in successfully");
+            }
+        }
+        return Unauthorized("Invalid username or password");
+    }
+}
+
+
+Views:
+
+
+<!-- Index.cshtml -->
+@model ServerInfoViewModel
+
+<h2>Server Information</h2>
+
+<form asp-action="GetServerInfo" asp-controller="ServerInfo" method="post">
+    <label asp-for="ServerName">Server Name:</label>
+    <input asp-for="ServerName" />
+    <button type="submit">Get Server Info</button>
+</form>
+
+<div>
+    <h3>Server Details:</h3>
+    <p>Operating System: @Model.ServerInfo.OperatingSystem</p>
+    <p>Service Pack: @Model.ServerInfo.ServicePack</p>
+    <p>Processor Architecture: @Model.ServerInfo.ProcessorArchitecture</p>
+    <p>Processor Count: @Model.ServerInfo.ProcessorCount</p>
+    <p>Memory: @Model.ServerInfo.Memory</p>
+</div>
+
+<!-- Login.cshtml -->
+@model LoginModel
+
+<h2>Login</h2>
+
+<form asp-action="Login" asp-controller="Account" method="post">
+    <label asp-for="Username">Username:</label>
+    <input asp-for="Username" />
+    <label asp-for="Password">Password:</label>
+    <input asp-for="Password" type="password" />
+    <button type="submit">Login</button>
+</form>
+
+
+Data:
+
+
+// ServerInfoContext.cs
+public class ServerInfoContext : IdentityDbContext<IdentityUser>
+{
+
+create mvvm web application using asp.net mvc core  to login to authorised user using active directory then redorect to home page which contains remote windows server info add powershell script to get server details and store details in database and get server name from frontend
+Here's an example of creating an MVVM web application using (link unavailable) MVC Core to login authorized users using Active Directory, redirect to the home page, and display remote Windows server information:
+
+Step 1: Configure Active Directory Authentication
+
+In the Startup.cs file, add the Active Directory authentication configuration:
+
+services.AddAuthentication(IISDefaults.AuthenticationScheme);
+services.AddAuthorization(options =>
+{
+    options.AddPolicy("ADAuth", policy => policy.RequireClaim("(link unavailable)", "Domain Users"));
+});
+
+Step 2: Create Login Page
+
+Create a login page (Login.cshtml) to authenticate users:
+
+@model LoginModel
+
+<h2>Login</h2>
+
+<form asp-action="Login" asp-controller="Account" method="post">
+    <label asp-for="Username">Username:</label>
+    <input asp-for="Username" />
+    <label asp-for="Password">Password:</label>
+    <input asp-for="Password" type="password" />
+    <button type="submit">Login</button>
+</form>
+
+Step 3: Handle Login Request
+
+Create an account controller (AccountController.cs) to handle the login request:
+
+[ApiController]
+[Route("api/[controller]")]
+public class AccountController : ControllerBase
+{
+    [HttpPost]
+    public async Task<ActionResult<string>> Login(LoginModel model)
+    {
+        // Authenticate user using Active Directory
+        var principal = await AuthenticateUser(model.Username, model.Password);
+        if (principal != null)
+        {
+            // Redirect to home page
+            return RedirectToAction("Index", "Home");
+        }
+        return Unauthorized("Invalid username or password");
+    }
+
+    private async Task<ClaimsPrincipal> AuthenticateUser(string username, string password)
+    {
+        // Use System.DirectoryServices.AccountManagement to authenticate user
+        var context = new PrincipalContext(ContextType.Domain);
+        return context.ValidateCredentials(username, password) ? 
+            new ClaimsPrincipal(new ClaimsIdentity(username)) : null;
+    }
+}
+
+Step 4: Create Home Page
+
+Create a home page (Index.cshtml) to display remote Windows server information:
+
+@model ServerInfoViewModel
+
+<h2>Server Information</h2>
+
+<form asp-action="GetServerInfo" asp-controller="ServerInfo" method="post">
+    <label asp-for="ServerName">Server Name:</label>
+    <input asp-for="ServerName" />
+    <button type="submit">Get Server Info</button>
+</form>
+
+<div>
+    <h3>Server Details:</h3>
+    <p>Operating System: @Model.ServerInfo.OperatingSystem</p>
+    <p>Service Pack: @Model.ServerInfo.ServicePack</p>
+    <p>Processor Architecture: @Model.ServerInfo.ProcessorArchitecture</p>
+    <p>Processor Count: @Model.ServerInfo.ProcessorCount</p>
+    <p>Memory: @Model.ServerInfo.Memory</p>
+</div>
+
+Step 5: Get Server Details using PowerShell
+
+Create a PowerShell script (GetServerDetails.ps1) to get server details:
+
+param ($ServerName)
+
+$serverInfo = New-Object -TypeName PSObject
+$serverInfo | Add-Member -MemberType NoteProperty -Name ServerName -Value $ServerName
+$serverInfo | Add-Member -MemberType NoteProperty -Name OperatingSystem -Value (Get-WmiObject -Class Win32_OperatingSystem -ComputerName $ServerName).Caption
+$serverInfo | Add-Member -MemberType NoteProperty -Name ServicePack -Value (Get-WmiObject -Class Win32_OperatingSystem -ComputerName $ServerName).CSDVersion
+$serverInfo | Add-Member -MemberType NoteProperty -Name ProcessorArchitecture -Value (Get-WmiObject -Class Win32_Processor -ComputerName $ServerName).Architecture
+$serverInfo | Add-Member -MemberType NoteProperty -Name ProcessorCount -Value (Get-WmiObject -Class Win32_Processor -ComputerName $ServerName).NumberOfCores
+$serverInfo | Add-Member -MemberType NoteProperty -Name Memory -Value (Get-WmiObject -Class Win32_PhysicalMemory -ComputerName $ServerName).Capacity
+
+$serverInfo | ConvertTo-Json
+
+Step 6: Store Server Details in Database
+
+Create a database context (ServerInfoContext.cs) to store server details:
+
+public class ServerInfoContext : DbContext
+{
+    public ServerInfoContext(DbContextOptions<ServerInfoContext> options) : base(options)
+    {
+    }
+
+    public DbSet<ServerInfo> ServerInfo { get; set; }
+}
+
+Create a server info controller (ServerInfoController.cs) to handle server info requests:
+
+[ApiController]
+[Route("api/[controller]")]
+public class ServerInfoController : ControllerBase
