@@ -864,3 +864,9 @@ Create a server info controller (ServerInfoController.cs) to handle server info 
 [ApiController]
 [Route("api/[controller]")]
 public class ServerInfoController : ControllerBase
+*********************
+Unable to contact the server. This may be because this server does not exist, it is currently down, or it does not have the Active 
+Directory Web Services running.
+    + CategoryInfo          : ResourceUnavailable: (rdmGTIA:ADGroup) [Get-ADGroupMember], ADServerDownException
+    + FullyQualifiedErrorId : ActiveDirectoryServer:0,Microsoft.ActiveDirectory.Management.Commands.GetADGroupMember
+*****************
