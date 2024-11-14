@@ -870,3 +870,4 @@ Directory Web Services running.
     + CategoryInfo          : ResourceUnavailable: (rdmGTIA:ADGroup) [Get-ADGroupMember], ADServerDownException
     + FullyQualifiedErrorId : ActiveDirectoryServer:0,Microsoft.ActiveDirectory.Management.Commands.GetADGroupMember
 *****************
+try{ ((Get-WmiObject  -Query "SELECT PartComponent FROM Win32_GroupUser WHERE GroupComponent=`"Win32_Group.Domain='Europa',Name='$($Group.Name)'`"").PartComponent)} catch {continue }
